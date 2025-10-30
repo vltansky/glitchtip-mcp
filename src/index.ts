@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import 'dotenv/config';
 import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
@@ -10,12 +11,28 @@ const server = new McpServer({
   version: "1.0.0"
 });
 
-const glitchTipClient = new GlitchTipClient({
-  baseUrl: process.env.GLITCHTIP_BASE_URL || 'https://app.glitchtip.com',
-  token: process.env.GLITCHTIP_TOKEN,
-  sessionId: process.env.GLITCHTIP_SESSION_ID,
-  organization: process.env.GLITCHTIP_ORGANIZATION!
-});
+function getGlitchTipClient(): GlitchTipClient | null {
+  try {
+    return new GlitchTipClient({
+      baseUrl: process.env.GLITCHTIP_BASE_URL || 'https://app.glitchtip.com',
+      token: process.env.GLITCHTIP_TOKEN,
+      sessionId: process.env.GLITCHTIP_SESSION_ID,
+      organization: process.env.GLITCHTIP_ORGANIZATION!
+    });
+  } catch (error) {
+    return null;
+  }
+}
+
+function getValidationError(): string {
+  if (!process.env.GLITCHTIP_TOKEN && !process.env.GLITCHTIP_SESSION_ID) {
+    return 'Either token or session ID is required';
+  }
+  if (!process.env.GLITCHTIP_ORGANIZATION) {
+    return 'Organization is required';
+  }
+  return 'Configuration error';
+}
 
 server.resource(
   "issues",
@@ -30,8 +47,18 @@ server.resource(
     })
   }),
   async (uri) => {
+    const client = getGlitchTipClient();
+    if (!client) {
+      return {
+        contents: [{
+          uri: uri.href,
+          mimeType: "text/plain",
+          text: getValidationError()
+        }]
+      };
+    }
     try {
-      const issues = await glitchTipClient.getIssues('is:unresolved');
+      const issues = await client.getIssues('is:unresolved');
       return {
         contents: [{
           uri: uri.href,
@@ -58,9 +85,18 @@ server.tool(
     status: z.enum(['resolved', 'unresolved', 'all']).optional().describe("Filter issues by status: 'resolved', 'unresolved', or 'all' (default: 'unresolved')")
   },
   async ({ status = 'unresolved' }) => {
+    const client = getGlitchTipClient();
+    if (!client) {
+      return {
+        content: [{
+          type: "text",
+          text: getValidationError()
+        }]
+      };
+    }
     try {
       const query = status === 'all' ? undefined : `is:${status}`;
-      const issues = await glitchTipClient.getIssues(query);
+      const issues = await client.getIssues(query);
       return {
         content: [{
           type: "text",
@@ -85,8 +121,17 @@ server.tool(
     issueId: z.string().describe("The issue ID to get the latest event for")
   },
   async ({ issueId }) => {
+    const client = getGlitchTipClient();
+    if (!client) {
+      return {
+        content: [{
+          type: "text",
+          text: getValidationError()
+        }]
+      };
+    }
     try {
-      const event = await glitchTipClient.getIssueEvents(issueId, true);
+      const event = await client.getIssueEvents(issueId, true);
       return {
         content: [{
           type: "text",

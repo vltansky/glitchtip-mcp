@@ -28,4 +28,3 @@ dist/
 # Logs and OS
 *.log
 .DS_Store
-.cursor/mcp.json

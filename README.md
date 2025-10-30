@@ -39,7 +39,34 @@ You need:
 
 ### 2. Configure Your Project
 
-Create `.mcp.json` in your project root:
+#### Option A: Using `.env` file (Recommended for secrets)
+
+Create a `.env` file in your project root:
+
+```bash
+GLITCHTIP_TOKEN=your-api-token
+GLITCHTIP_ORGANIZATION=your-org-slug
+GLITCHTIP_BASE_URL=https://app.glitchtip.com
+```
+
+Then create `.cursor/mcp.json` (or `.mcp.json` in project root):
+
+```json
+{
+  "mcpServers": {
+    "glitchtip": {
+      "command": "npx",
+      "args": ["-y", "glitchtip-mcp"]
+    }
+  }
+}
+```
+
+The server will automatically load environment variables from `.env` using dotenv.
+
+#### Option B: Using `env` object in MCP config
+
+Create `.cursor/mcp.json` (or `.mcp.json` in project root):
 
 ```json
 {
@@ -57,10 +84,19 @@ Create `.mcp.json` in your project root:
 }
 ```
 
-**Important**: Add `.mcp.json` to `.gitignore`:
+**Important**: Add the files you use to `.gitignore`:
+
+- If using `.env` file: Add `.env` to `.gitignore`
+- If using `env` object in `mcp.json`: Add `.mcp.json` or `.cursor/mcp.json` to `.gitignore`
 
 ```bash
+# If using .env file (recommended)
+echo ".env" >> .gitignore
+
+# If using env object in mcp.json instead
 echo ".mcp.json" >> .gitignore
+# or
+echo ".cursor/mcp.json" >> .gitignore
 ```
 
 ### 3. Open in Claude Desktop
@@ -68,6 +104,10 @@ echo ".mcp.json" >> .gitignore
 Open your project folder in Claude Desktop. It will automatically connect to your GlitchTip instance.
 
 ## Configuration
+
+Environment variables can be provided either:
+- Via `.env` file (automatically loaded by the server using dotenv)
+- Via `env` object in `.cursor/mcp.json` or `.mcp.json`
 
 | Variable | Required | Description | Default |
 |----------|----------|-------------|---------|
@@ -78,13 +118,21 @@ Open your project folder in Claude Desktop. It will automatically connect to you
 
 *Either `GLITCHTIP_TOKEN` or `GLITCHTIP_SESSION_ID` is required
 
+**Note**: Using `.env` files is recommended for keeping secrets out of version control. The server automatically loads `.env` files using dotenv, so you don't need to configure anything in `mcp.json` if you use this approach.
+
 ## Available Tools
 
 ### `glitchtip_issues`
 
-Fetches all unresolved issues from GlitchTip.
+Fetches issues from GlitchTip. By default, returns only unresolved issues.
 
-**Example**: "Show me all GlitchTip errors"
+**Parameters**:
+- `status` (optional): Filter by status - `'resolved'`, `'unresolved'`, or `'all'` (default: `'unresolved'`)
+
+**Examples**:
+- "Show me all GlitchTip errors" (unresolved)
+- "Get resolved issues" (with `status: 'resolved'`)
+- "Show all issues" (with `status: 'all'`)
 
 ### `glitchtip_latest_event`
 
@@ -188,9 +236,12 @@ glitchtip-mcp/
 
 ## Security
 
-- Never commit `.mcp.json` to version control
+- Never commit `.mcp.json`, `.cursor/mcp.json`, or `.env` to version control
+- Use `.env` files for storing secrets (automatically ignored by git if added to `.gitignore`)
 - Use API tokens instead of session IDs for team usage
 - Each developer should use their own credentials
+
+Based on https://github.com/coffebar/mcp-glitchtip https://github.com/coffebar/mcp-glitchtip
 
 ## License
 

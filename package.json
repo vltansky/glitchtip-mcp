@@ -22,10 +22,11 @@
     "debugging",
     "ai-tools"
   ],
-  "author": "",
+  "author": "Vlad Tansky",
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.13.2",
+    "dotenv": "^17.2.3",
     "node-fetch": "^3.3.2",
     "zod": "^3.25.67"
   },
