@@ -15,3 +15,17 @@ node_modules
 
 #!.yarn/cache
 .pnp.*
+
+# Build output
+build/
+dist/
+
+# Environment and config
+.mcp.json
+.env
+.env.local
+
+# Logs and OS
+*.log
+.DS_Store
+.cursor/mcp.json
