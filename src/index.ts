@@ -149,6 +149,109 @@ server.tool(
   }
 );
 
+server.prompt(
+  "recent_errors",
+  "Get overview of recent production errors with analysis and prioritization",
+  async () => {
+    const client = getGlitchTipClient();
+    if (!client) {
+      return {
+        messages: [{
+          role: "user",
+          content: {
+            type: "text",
+            text: getValidationError()
+          }
+        }]
+      };
+    }
+    try {
+      const issues = await client.getIssues('is:unresolved');
+      const prompt = `Analyze these GlitchTip errors and provide:
+1. Summary of error frequency and severity
+2. Most critical issues (by count and impact)
+3. Common patterns or trends
+4. Recommended prioritization
+
+Issues data:
+${JSON.stringify(issues, null, 2)}`;
+
+      return {
+        messages: [{
+          role: "user",
+          content: {
+            type: "text",
+            text: prompt
+          }
+        }]
+      };
+    } catch (error) {
+      return {
+        messages: [{
+          role: "user",
+          content: {
+            type: "text",
+            text: error instanceof Error ? error.message : 'Error fetching issues'
+          }
+        }]
+      };
+    }
+  }
+);
+
+server.prompt(
+  "debug_issue",
+  "Deep-dive into a specific error with full context and suggest fixes",
+  {
+    issueId: z.string().describe("The issue ID to debug")
+  },
+  async ({ issueId }) => {
+    const client = getGlitchTipClient();
+    if (!client) {
+      return {
+        messages: [{
+          role: "user",
+          content: {
+            type: "text",
+            text: getValidationError()
+          }
+        }]
+      };
+    }
+    try {
+      const event = await client.getIssueEvents(issueId, true);
+      const prompt = `Debug this GlitchTip error and provide:
+1. Root cause analysis
+2. Stack trace interpretation
+3. Potential fixes with code examples
+4. Prevention strategies
+
+Error details:
+${JSON.stringify(event, null, 2)}`;
+
+      return {
+        messages: [{
+          role: "user",
+          content: {
+            type: "text",
+            text: prompt
+          }
+        }]
+      };
+    } catch (error) {
+      return {
+        messages: [{
+          role: "user",
+          content: {
+            type: "text",
+            text: error instanceof Error ? error.message : 'Error fetching event'
+          }
+        }]
+      };
+    }
+  }
+);
+
 const main = async () => {
   const transport = new StdioServerTransport();
   await server.connect(transport);

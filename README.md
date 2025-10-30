@@ -121,6 +121,27 @@ Gets the latest event for a specific issue with full context.
 
 Resource endpoint providing all current issues in JSON format.
 
+## Available Prompts
+
+### `recent_errors`
+
+Get overview of recent production errors with analysis and prioritization.
+
+**Use case**: Quick triage of production issues
+
+**Example**: "Use the recent_errors prompt"
+
+### `debug_issue`
+
+Deep-dive into a specific error with full context and suggested fixes.
+
+**Parameters**:
+- `issueId`: The issue ID to debug
+
+**Use case**: Detailed investigation of a specific error
+
+**Example**: "Use the debug_issue prompt for issue 12345"
+
 ## Usage Examples
 
 ### Debug Production Error
@@ -148,6 +169,28 @@ AI: Top errors by frequency:
 1. CORS policy errors (145 occurrences)
 2. Missing auth token (89 occurrences)
 3. Rate limit exceeded (67 occurrences)
+```
+
+### Use Prompts for Guided Analysis
+
+```
+User: "Use the recent_errors prompt"
+
+AI: [Analyzes all unresolved issues]
+Summary:
+- 23 unresolved errors across 5 projects
+- Critical: DatabaseConnectionError (89 occurrences)
+- High: TimeoutError in payment flow (45 occurrences)
+- Medium: ValidationErrors (12 occurrences)
+
+Recommended prioritization:
+1. Fix database connection pooling
+2. Investigate payment timeout root cause
+3. Add validation for edge cases
+
+User: "Use the debug_issue prompt for issue 12345"
+
+AI: [Deep-dives into specific error with stack trace and fix suggestions]
 ```
 
 ## Troubleshooting
