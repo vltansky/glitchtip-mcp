@@ -2,44 +2,27 @@
 
 MCP server for integrating GlitchTip error monitoring with AI assistants like Claude.
 
-## Features
-
-- Fetch and analyze issues from your GlitchTip instance
-- Get detailed error context including stack traces and metadata
-- AI-powered debugging assistance for production errors
-
-## Installation
-
-```bash
-npm install glitchtip-mcp
-```
-
 ## Quick Start
 
-### 1. Get GlitchTip Credentials
+### 1. Get Your GlitchTip Credentials
 
-You need:
-- **Authentication**: API token (recommended) or Session ID
-- **Organization**: Your organization slug from GlitchTip
-- **Base URL**: Your GlitchTip instance URL (optional, defaults to https://app.glitchtip.com)
-
-#### Option 1: API Token (Recommended)
+#### API Token (Recommended)
 
 1. Log in to GlitchTip
-2. Navigate to `/profile/auth-tokens`
+2. Go to [https://app.glitchtip.com/profile/auth-tokens](https://app.glitchtip.com/profile/auth-tokens)
 3. Create a new API token
 4. Copy the token
 
-#### Option 2: Session ID
+#### Session ID (Alternative)
 
 1. Log in to GlitchTip
 2. Open browser DevTools (F12)
 3. Go to Application/Storage → Cookies
 4. Copy the `sessionid` cookie value
 
-### 2. Configure Your Project
+### 2. Configure MCP
 
-#### Option A: Using `.env` file (Recommended for secrets)
+#### Option A: Using `.env` file (Recommended)
 
 Create a `.env` file in your project root:
 
@@ -49,7 +32,7 @@ GLITCHTIP_ORGANIZATION=your-org-slug
 GLITCHTIP_BASE_URL=https://app.glitchtip.com
 ```
 
-Then create `.cursor/mcp.json` (or `.mcp.json` in project root):
+Create `.cursor/mcp.json`:
 
 ```json
 {
@@ -62,11 +45,15 @@ Then create `.cursor/mcp.json` (or `.mcp.json` in project root):
 }
 ```
 
-The server will automatically load environment variables from `.env` using dotenv.
+Add `.env` to `.gitignore`:
+
+```bash
+echo ".env" >> .gitignore
+```
 
 #### Option B: Using `env` object in MCP config
 
-Create `.cursor/mcp.json` (or `.mcp.json` in project root):
+Create `.cursor/mcp.json`:
 
 ```json
 {
@@ -84,30 +71,17 @@ Create `.cursor/mcp.json` (or `.mcp.json` in project root):
 }
 ```
 
-**Important**: Add the files you use to `.gitignore`:
-
-- If using `.env` file: Add `.env` to `.gitignore`
-- If using `env` object in `mcp.json`: Add `.mcp.json` or `.cursor/mcp.json` to `.gitignore`
+Add `.cursor/mcp.json` to `.gitignore`:
 
 ```bash
-# If using .env file (recommended)
-echo ".env" >> .gitignore
-
-# If using env object in mcp.json instead
-echo ".mcp.json" >> .gitignore
-# or
 echo ".cursor/mcp.json" >> .gitignore
 ```
 
-### 3. Open in Claude Desktop
+### 3. Start Using
 
-Open your project folder in Claude Desktop. It will automatically connect to your GlitchTip instance.
+Open your project in Claude Desktop or Cursor. The GlitchTip MCP server will connect automatically.
 
 ## Configuration
-
-Environment variables can be provided either:
-- Via `.env` file (automatically loaded by the server using dotenv)
-- Via `env` object in `.cursor/mcp.json` or `.mcp.json`
 
 | Variable | Required | Description | Default |
 |----------|----------|-------------|---------|
@@ -118,21 +92,19 @@ Environment variables can be provided either:
 
 *Either `GLITCHTIP_TOKEN` or `GLITCHTIP_SESSION_ID` is required
 
-**Note**: Using `.env` files is recommended for keeping secrets out of version control. The server automatically loads `.env` files using dotenv, so you don't need to configure anything in `mcp.json` if you use this approach.
-
 ## Available Tools
 
 ### `glitchtip_issues`
 
-Fetches issues from GlitchTip. By default, returns only unresolved issues.
+Fetches issues from GlitchTip.
 
 **Parameters**:
-- `status` (optional): Filter by status - `'resolved'`, `'unresolved'`, or `'all'` (default: `'unresolved'`)
+- `status` (optional): `'resolved'`, `'unresolved'`, or `'all'` (default: `'unresolved'`)
 
 **Examples**:
-- "Show me all GlitchTip errors" (unresolved)
-- "Get resolved issues" (with `status: 'resolved'`)
-- "Show all issues" (with `status: 'all'`)
+- "Show me all GlitchTip errors"
+- "Get resolved issues"
+- "Show all issues including resolved"
 
 ### `glitchtip_latest_event`
 
@@ -178,42 +150,6 @@ AI: Top errors by frequency:
 3. Rate limit exceeded (67 occurrences)
 ```
 
-## Development
-
-### Build
-
-```bash
-npm install
-npm run build
-```
-
-### Watch Mode
-
-```bash
-npm run watch
-```
-
-### Test with MCP Inspector
-
-```bash
-export GLITCHTIP_TOKEN="your-token"
-export GLITCHTIP_ORGANIZATION="your-org"
-npm run inspector
-```
-
-## Project Structure
-
-```
-glitchtip-mcp/
-├── src/
-│   ├── types.ts      # TypeScript type definitions
-│   ├── client.ts     # GlitchTip API client
-│   └── index.ts      # MCP server implementation
-├── package.json
-├── tsconfig.json
-└── README.md
-```
-
 ## Troubleshooting
 
 ### Authentication Failed
@@ -241,8 +177,53 @@ glitchtip-mcp/
 - Use API tokens instead of session IDs for team usage
 - Each developer should use their own credentials
 
-Based on https://github.com/coffebar/mcp-glitchtip https://github.com/coffebar/mcp-glitchtip
+---
+
+## Development & Contributing
+
+### Installation
+
+```bash
+npm install
+```
+
+### Build
+
+```bash
+npm run build
+```
+
+### Watch Mode
+
+```bash
+npm run watch
+```
+
+### Test with MCP Inspector
+
+```bash
+export GLITCHTIP_TOKEN="your-token"
+export GLITCHTIP_ORGANIZATION="your-org"
+npm run inspector
+```
+
+### Project Structure
+
+```
+glitchtip-mcp/
+├── src/
+│   ├── types.ts      # TypeScript type definitions
+│   ├── client.ts     # GlitchTip API client
+│   └── index.ts      # MCP server implementation
+├── package.json
+├── tsconfig.json
+└── README.md
+```
 
 ## License
 
 MIT
+
+---
+
+Based on [mcp-glitchtip](https://github.com/coffebar/mcp-glitchtip)
